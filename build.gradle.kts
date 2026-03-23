@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
-    id("org.jetbrains.intellij") version "1.17.3"
+    id("org.jetbrains.intellij.platform") version "2.11.0"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -11,34 +11,48 @@ version = providers.gradleProperty("pluginVersion").get()
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
-intellij {
-    pluginName = providers.gradleProperty("pluginName")
-    type = providers.gradleProperty("platformType")
-    version = providers.gradleProperty("platformVersion")
+dependencies {
+    intellijPlatform {
+        create(
+            providers.gradleProperty("platformType"),
+            providers.gradleProperty("platformVersion"),
+        )
+        // Required for Plugin Verifier and signing tasks
+        pluginVerifier()
+        zipSigner()
 
-    // Depend on the Java plugin so we can access CompilerManager
-    plugins = listOf("java")
+        // Bundled Java plugin — needed for CompilerManager access
+        bundledPlugin("com.intellij.java")
+    }
 }
 
-tasks {
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+intellijPlatform {
+    pluginConfiguration {
+        name = providers.gradleProperty("pluginName")
+        ideaVersion {
+            sinceBuild = "241"
+            untilBuild = "251.*"
+        }
     }
 
-    patchPluginXml {
-        sinceBuild = "241"
-        untilBuild = "251.*"
-    }
-
-    signPlugin {
+    signing {
         certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
         privateKey = providers.environmentVariable("PRIVATE_KEY")
         password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
     }
 
-    publishPlugin {
+    publishing {
         token = providers.environmentVariable("PUBLISH_TOKEN")
+    }
+}
+
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "17"
     }
 }
