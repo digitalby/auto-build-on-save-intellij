@@ -1,14 +1,23 @@
 <idea-plugin>
     <id>info.yuryv.auto-build-on-save</id>
     <name>Auto Build on Save</name>
-    <vendor email="you@example.com" url="">Your Name</vendor>
+    <vendor email="jbsupport@yuryv.info" url="https://yuryv.info">Yury Vashchylau</vendor>
     <version>1.0.0</version>
 
     <description><![CDATA[
-        Automatically triggers a project build whenever you save a file,
-        but only if there are no active linter/inspection errors in the project.
-        Speeds up the Android prototyping and bug-fixing loop.
+        <p>Automatically triggers an incremental build whenever you save a file in the project.
+        Skips the build if the IDE reports linter errors. Configure via
+        <b>Settings / Preferences &gt; Tools &gt; Auto Build on Save</b>.</p>
+        <ul>
+            <li>Incremental build on every file save</li>
+            <li>Optional error guard (skip build when linter errors exist)</li>
+            <li>Configurable debounce delay (default 1500 ms)</li>
+        </ul>
     ]]></description>
+
+    <change-notes><![CDATA[
+        <b>1.0.0</b> - Initial version
+    ]]></change-notes>
 
     <!-- Works with IntelliJ-based IDEs including Android Studio -->
     <idea-version since-build="241" until-build="251.*"/>
@@ -27,11 +36,11 @@
                 parentId="tools"
                 instance="info.yuryv.AutoBuildSettingsConfigurable"
                 id="info.yuryv.autobuildsettingsconfigurable"
-                displayname="auto build on save"/>
+                displayName="Auto Build on Save"/>
 
-        <!-- persistent settings storage -->
-        <applicationservice
-                serviceimplementation="info.yuryv.AutoBuildSettings"/>
+        <!-- Persistent settings storage -->
+        <applicationService
+                serviceImplementation="info.yuryv.AutoBuildSettings"/>
     </extensions>
 
     <applicationListeners>
