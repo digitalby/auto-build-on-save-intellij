@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
-    id("org.jetbrains.intellij.platform") version "2.11.0"
+    id("org.jetbrains.intellij.platform") version "2.13.1"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -49,10 +47,18 @@ intellijPlatform {
     publishing {
         token = providers.environmentVariable("PUBLISH_TOKEN")
     }
+
+    pluginVerification {
+        ides {
+            if (providers.environmentVariable("CI").isPresent) {
+                recommended()
+            } else {
+                local("/Applications/Android Studio.app")
+            }
+        }
+    }
 }
 
-tasks {
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
+kotlin {
+    jvmToolchain(17)
 }
